@@ -1,4 +1,4 @@
-package jko.moviesservice
+package jko.moviesservice.controller
 
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,7 +11,7 @@ import java.time.Duration
 class FluxAndMonoController {
 
     @GetMapping("/flux")
-    fun flux(): Flux<String> = Flux.just("1", "2", "3").log()
+    fun flux(): Flux<Int> = Flux.just(1, 2, 3).log()
 
     @GetMapping("/mono")
     fun mono(): Mono<String> = Mono.just("1").log()
