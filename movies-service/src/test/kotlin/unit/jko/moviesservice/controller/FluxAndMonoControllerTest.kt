@@ -1,5 +1,6 @@
 package jko.moviesservice.controller
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,6 +51,19 @@ internal class FluxAndMonoControllerTest(
             .expectBodyList(Int::class.java)
             .consumeWith<WebTestClient.ListBodySpec<Int>> {
                 assert(it.responseBody?.size == 3)
+            }
+    }
+
+    @Test
+    fun mono() {
+        webTestClient.get()
+            .uri("/mono")
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody(String::class.java)
+            .consumeWith {
+                assertEquals("1", it.responseBody)
             }
     }
 }
