@@ -8,13 +8,13 @@ import java.time.LocalDate
 data class MovieInfo(
 
     @Id
-    private val movieInfoId: String?,
+    val movieInfoId: String?,
 
-    private val name: String,
+    val name: String,
 
-    private val year: Int,
+    val year: Int,
 
-    private val cast: List<String>,
+    val cast: List<String>,
 
-    private val releaseDate: LocalDate
+    val releaseDate: LocalDate
 )
