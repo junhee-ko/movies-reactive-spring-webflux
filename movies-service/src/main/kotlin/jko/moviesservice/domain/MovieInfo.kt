@@ -12,7 +12,7 @@ data class MovieInfo(
 
     val name: String,
 
-    val year: Int,
+    var year: Int,
 
     val cast: List<String>,
 
