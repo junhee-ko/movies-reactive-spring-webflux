@@ -5,10 +5,10 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document
-class MovieInfo(
+data class MovieInfo(
 
     @Id
-    private val movieInfoId: String,
+    private val movieInfoId: String?,
 
     private val name: String,
 
