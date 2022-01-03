@@ -4,6 +4,7 @@ import jko.moviesservice.domain.MovieInfo
 import jko.moviesservice.service.MovieInfoService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
@@ -11,6 +12,12 @@ import reactor.core.publisher.Mono
 class MoviesInfoController(
     private val movieInfoService: MovieInfoService
 ) {
+
+
+    @GetMapping("/movieinfos")
+    fun getAllMovieInfos(): Flux<MovieInfo> {
+        return movieInfoService.getAllMovieInfos().log()
+    }
 
     @PostMapping("/movieinfos")
     @ResponseStatus(HttpStatus.CREATED)
