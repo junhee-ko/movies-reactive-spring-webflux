@@ -121,4 +121,18 @@ class MovieInfoRepositoryIntgTest(
             }
             .verifyComplete()
     }
+
+    @Test
+    fun delete() {
+        // given
+
+        // when
+        movieInfoRepository.deleteById("abc").block()
+
+        // then
+        val moviesInfoFlux = movieInfoRepository.findAll().log()
+        StepVerifier.create(moviesInfoFlux)
+            .expectNextCount(2)
+            .verifyComplete()
+    }
 }
