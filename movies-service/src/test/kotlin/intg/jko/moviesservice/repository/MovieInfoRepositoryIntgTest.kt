@@ -3,6 +3,7 @@ package jko.moviesservice.repository
 import jko.moviesservice.domain.MovieInfo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,12 +17,12 @@ import java.time.LocalDate
 @DataMongoTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = ["spring.mongodb.embedded.version=3.0.0"])
-internal class MovieInfoRepositoryIntgTest(
+class MovieInfoRepositoryIntgTest(
     @Autowired val movieInfoRepository: MovieInfoRepository
 ) {
 
     @BeforeEach
-    internal fun setUp() {
+    fun setUp() {
         val movieInfos = listOf(
             MovieInfo(
                 movieInfoId = null,
@@ -51,12 +52,12 @@ internal class MovieInfoRepositoryIntgTest(
     }
 
     @AfterEach
-    internal fun tearDown() {
+    fun tearDown() {
         movieInfoRepository.deleteAll().block()
     }
 
     @Test
-    internal fun findAll() {
+    fun findAll() {
         // given
 
         // when
@@ -69,7 +70,7 @@ internal class MovieInfoRepositoryIntgTest(
     }
 
     @Test
-    internal fun findById() {
+    fun findById() {
         // given
 
         // when
@@ -78,6 +79,29 @@ internal class MovieInfoRepositoryIntgTest(
         // then
         StepVerifier.create(moviesInfoMono)
             .assertNext { assertEquals("Uncle", it.name) }
+            .verifyComplete()
+    }
+
+    @Test
+    fun save() {
+        // given
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "Look at me",
+            year = 2015,
+            cast = listOf("jko", "Ko"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        // when
+        val moviesInfoMono = movieInfoRepository.save(movieInfo).log()
+
+        // then
+        StepVerifier.create(moviesInfoMono)
+            .assertNext {
+                assertNotNull(it.movieInfoId)
+                assertEquals("Look at me", it.name)
+            }
             .verifyComplete()
     }
 }
