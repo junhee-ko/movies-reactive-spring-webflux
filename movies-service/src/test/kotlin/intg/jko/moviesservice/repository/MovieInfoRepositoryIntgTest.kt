@@ -2,6 +2,7 @@ package jko.moviesservice.repository
 
 import jko.moviesservice.domain.MovieInfo
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -64,6 +65,19 @@ internal class MovieInfoRepositoryIntgTest(
         // then
         StepVerifier.create(moviesInfoFlux)
             .expectNextCount(3)
+            .verifyComplete()
+    }
+
+    @Test
+    internal fun findById() {
+        // given
+
+        // when
+        val moviesInfoMono = movieInfoRepository.findById("abc").log()
+
+        // then
+        StepVerifier.create(moviesInfoMono)
+            .assertNext { assertEquals("Uncle", it.name) }
             .verifyComplete()
     }
 }
