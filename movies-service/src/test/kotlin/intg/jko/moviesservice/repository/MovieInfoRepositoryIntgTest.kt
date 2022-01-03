@@ -104,4 +104,21 @@ class MovieInfoRepositoryIntgTest(
             }
             .verifyComplete()
     }
+
+    @Test
+    fun update() {
+        // given
+        val movieInfo: MovieInfo? = movieInfoRepository.findById("abc").block()
+        movieInfo?.year = 2021
+
+        // when
+        val moviesInfoMono = movieInfoRepository.save(movieInfo!!).log()
+
+        // then
+        StepVerifier.create(moviesInfoMono)
+            .assertNext {
+                assertEquals(2021, it.year)
+            }
+            .verifyComplete()
+    }
 }
