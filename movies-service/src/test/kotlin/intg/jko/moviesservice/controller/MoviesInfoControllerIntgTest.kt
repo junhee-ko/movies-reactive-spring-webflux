@@ -159,4 +159,21 @@ class MoviesInfoControllerIntgTest(
 
         // then
     }
+
+    @Test
+    fun deleteMovieInfo() {
+        // given
+        val movieInfoId = "abc"
+
+        // when
+        webTestClient
+            .delete()
+            .uri("/v1/movieinfos/{id}", movieInfoId)
+            .exchange()
+            .expectStatus()
+            .isNoContent
+            .expectBody(Void::class.java)
+
+        // then
+    }
 }

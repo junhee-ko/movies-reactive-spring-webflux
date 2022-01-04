@@ -34,4 +34,8 @@ class MovieInfoService(
                 movieInfoRepository.save(it)
             }
     }
+
+    fun deleteMovieInfo(id: String): Mono<Void> {
+        return movieInfoRepository.deleteById(id)
+    }
 }
