@@ -4,6 +4,7 @@ import jko.moviesservice.domain.MovieInfo
 import jko.moviesservice.service.MovieInfoService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.isA
@@ -149,4 +150,34 @@ class MovieInfoControllerUnitTest {
 
         // then
     }
+
+    @Test
+    fun addMovieInfoWithValidation() {
+        // given
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "",
+            year = -2005,
+            cast = listOf("Christian Bale", "Michael Cane"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        // when
+        webTestClient
+            .post()
+            .uri("/v1/movieinfos")
+            .bodyValue(movieInfo)
+            .exchange()
+            .expectStatus()
+            .isBadRequest
+            .expectBody(String::class.java)
+            .consumeWith {
+                val responseBody = it.responseBody
+                println(responseBody)
+                assertNotNull(responseBody)
+            }
+
+        // then
+    }
+
 }
