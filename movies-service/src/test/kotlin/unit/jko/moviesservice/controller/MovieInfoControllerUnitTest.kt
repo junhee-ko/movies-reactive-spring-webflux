@@ -106,4 +106,47 @@ class MovieInfoControllerUnitTest {
 
         // then
     }
+
+    @Test
+    fun updateMovieInfo() {
+        // given
+        val movieInfoId = "abc"
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "Batman Begins 2",
+            year = 2005,
+            cast = listOf("Christian Bale", "Michael Cane"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        `when`(movieInfoServiceMock.updateMovieInfo(isA(), isA())).thenReturn(
+            Mono.just(
+                MovieInfo(
+                    movieInfoId = "mockId",
+                    name = "Batman Begins 2",
+                    year = 2005,
+                    cast = listOf("Christian Bale", "Michael Cane"),
+                    releaseDate = LocalDate.of(2000, 11, 14)
+                )
+            )
+        )
+
+        // when
+        webTestClient
+            .put()
+            .uri("/v1/movieinfos/$movieInfoId")
+            .bodyValue(movieInfo)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody(MovieInfo::class.java)
+            .consumeWith {
+                val updatedMovieInfo = it.responseBody
+                Assertions.assertNotNull(updatedMovieInfo)
+                Assertions.assertNotNull(updatedMovieInfo?.movieInfoId)
+                assertEquals("mockId", updatedMovieInfo?.movieInfoId)
+            }
+
+        // then
+    }
 }
