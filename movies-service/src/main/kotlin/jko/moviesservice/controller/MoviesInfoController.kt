@@ -3,6 +3,7 @@ package jko.moviesservice.controller
 import jko.moviesservice.domain.MovieInfo
 import jko.moviesservice.service.MovieInfoService
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -32,9 +33,14 @@ class MoviesInfoController(
     }
 
     @PutMapping("/movieinfos/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    fun updateMovieInfo(@RequestBody updatedMovieInfo: MovieInfo, @PathVariable id: String): Mono<MovieInfo> {
-        return movieInfoService.updateMovieInfo(updatedMovieInfo, id).log()
+    fun updateMovieInfo(
+        @RequestBody updatedMovieInfo: MovieInfo,
+        @PathVariable id: String
+    ): Mono<ResponseEntity<MovieInfo>> {
+        return movieInfoService.updateMovieInfo(updatedMovieInfo, id)
+            .map { ResponseEntity.ok().body(it) }
+            .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))
+            .log()
     }
 
     @DeleteMapping("/movieinfos/{id}")

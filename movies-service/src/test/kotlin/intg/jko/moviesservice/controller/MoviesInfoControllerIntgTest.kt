@@ -176,4 +176,29 @@ class MoviesInfoControllerIntgTest(
 
         // then
     }
+
+    @Test
+    fun updateMovieInfoNotFound() {
+        // given
+        val movieInfoId = "def"
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "My Name",
+            year = 2005,
+            cast = listOf("Christian Bale", "Michael Cane"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        // when
+        webTestClient
+            .put()
+            .uri("/v1/movieinfos/{id}", movieInfoId)
+            .bodyValue(movieInfo)
+            .exchange()
+            .expectStatus()
+            .isNotFound
+            .expectBody(MovieInfo::class.java)
+
+        // then
+    }
 }
