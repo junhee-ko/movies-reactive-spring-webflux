@@ -172,12 +172,10 @@ class MovieInfoControllerUnitTest {
             .isBadRequest
             .expectBody(String::class.java)
             .consumeWith {
-                val responseBody = it.responseBody
-                println(responseBody)
-                assertNotNull(responseBody)
+                val error = it.responseBody
+                val expectedErrorMessage = "movieInfo.name nums be present,movieInfo.year nums be positive value"
+                assertEquals(expectedErrorMessage, error)
             }
-
-        // then
     }
 
 }
