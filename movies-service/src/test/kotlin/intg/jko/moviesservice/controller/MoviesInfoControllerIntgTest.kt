@@ -3,6 +3,7 @@ package jko.moviesservice.controller
 import jko.moviesservice.domain.MovieInfo
 import jko.moviesservice.repository.MovieInfoRepository
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -124,6 +125,37 @@ class MoviesInfoControllerIntgTest(
 //                val movieInfo = it.responseBody
 //                assertNotNull(movieInfo)
 //            }
+
+        // then
+    }
+
+    @Test
+    fun updateMovieInfo() {
+        // given
+        val movieInfoId = "abc"
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "My Name",
+            year = 2005,
+            cast = listOf("Christian Bale", "Michael Cane"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        // when
+        webTestClient
+            .put()
+            .uri("/v1/movieinfos/{id}", movieInfoId)
+            .bodyValue(movieInfo)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody(MovieInfo::class.java)
+            .consumeWith {
+                val updatedMovieInfo = it.responseBody
+                assertNotNull(updatedMovieInfo)
+                assertNotNull(updatedMovieInfo?.movieInfoId)
+                assertEquals("My Name", updatedMovieInfo?.name)
+            }
 
         // then
     }

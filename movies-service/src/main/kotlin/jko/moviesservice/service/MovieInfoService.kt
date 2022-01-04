@@ -22,4 +22,16 @@ class MovieInfoService(
     fun getMovieInfoById(id: String): Mono<MovieInfo> {
         return movieInfoRepository.findById(id)
     }
+
+    fun updateMovieInfo(updatedMovieInfo: MovieInfo, id: String): Mono<MovieInfo> {
+        return movieInfoRepository.findById(id)
+            .flatMap {
+                it.cast = updatedMovieInfo.cast
+                it.name = updatedMovieInfo.name
+                it.releaseDate = updatedMovieInfo.releaseDate
+                it.year = updatedMovieInfo.year
+
+                movieInfoRepository.save(it)
+            }
+    }
 }
