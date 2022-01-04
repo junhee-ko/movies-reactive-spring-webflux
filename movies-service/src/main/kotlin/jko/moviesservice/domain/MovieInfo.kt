@@ -13,14 +13,15 @@ data class MovieInfo(
     @Id
     val movieInfoId: String?,
 
-    @field:NotBlank(message = "movieInfo.name nums be present")
+    @field:NotBlank(message = "movieInfo.name must be present")
     var name: String,
 
     @field:NotNull
-    @field:Positive(message = "movieInfo.year nums be positive value")
+    @field:Positive(message = "movieInfo.year must be positive value")
     var year: Int,
 
-    var cast: List<String>,
+
+    var cast: List<@NotBlank(message = "movieInfo.cast be present") String>, // not work in kotlin
 
     var releaseDate: LocalDate
 )

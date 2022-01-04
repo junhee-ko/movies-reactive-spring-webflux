@@ -173,7 +173,7 @@ class MovieInfoControllerUnitTest {
             .expectBody(String::class.java)
             .consumeWith {
                 val error = it.responseBody
-                val expectedErrorMessage = "movieInfo.name nums be present,movieInfo.year nums be positive value"
+                val expectedErrorMessage = "movieInfo.name must be present,movieInfo.year must be positive value"
                 assertEquals(expectedErrorMessage, error)
             }
     }
