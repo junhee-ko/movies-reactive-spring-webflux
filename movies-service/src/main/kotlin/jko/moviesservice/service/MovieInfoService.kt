@@ -18,4 +18,8 @@ class MovieInfoService(
     fun getAllMovieInfos(): Flux<MovieInfo> {
         return movieInfoRepository.findAll()
     }
+
+    fun getMovieInfoById(id: String): Mono<MovieInfo> {
+        return movieInfoRepository.findById(id)
+    }
 }

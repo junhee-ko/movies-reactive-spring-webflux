@@ -104,4 +104,27 @@ class MoviesInfoControllerIntgTest(
 
         // then
     }
+
+    @Test
+    fun getMovieInfoById() {
+        // given
+        val movieInfoId = "abc"
+
+        // when
+        webTestClient
+            .get()
+            .uri("/v1/movieinfos/{id}", movieInfoId)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody()
+            .jsonPath("$.name").isEqualTo("Uncle")
+//            .expectBody()
+//            .consumeWith {
+//                val movieInfo = it.responseBody
+//                assertNotNull(movieInfo)
+//            }
+
+        // then
+    }
 }
