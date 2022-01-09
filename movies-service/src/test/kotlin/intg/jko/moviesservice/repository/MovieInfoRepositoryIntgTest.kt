@@ -135,4 +135,17 @@ class MovieInfoRepositoryIntgTest(
             .expectNextCount(2)
             .verifyComplete()
     }
+
+    @Test
+    fun findByYear() {
+        // given
+
+        // when
+        val moviesInfoFlux: Flux<MovieInfo> = movieInfoRepository.findByYear(2005).log()
+
+        // then
+        StepVerifier.create(moviesInfoFlux)
+            .expectNextCount(1)
+            .verifyComplete()
+    }
 }
