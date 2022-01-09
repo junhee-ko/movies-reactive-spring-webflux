@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.util.UriComponentsBuilder
 import java.time.LocalDate
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -102,6 +103,26 @@ class MoviesInfoControllerIntgTest(
             .is2xxSuccessful
             .expectBodyList(MovieInfo::class.java)
             .hasSize(3)
+
+        // then
+    }
+
+    @Test
+    fun getAllMovieInfoByYear() {
+        // given
+        val uri = UriComponentsBuilder.fromUriString("/v1/movieinfos")
+            .queryParam("year", 2005)
+            .buildAndExpand().toUri()
+
+        // when
+        webTestClient
+            .get()
+            .uri(uri)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBodyList(MovieInfo::class.java)
+            .hasSize(1)
 
         // then
     }
