@@ -1,5 +1,6 @@
 package jko.moviesreviewservice.router
 
+import jko.moviesreviewservice.handler.ReviewHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -10,9 +11,10 @@ import org.springframework.web.reactive.function.server.ServerResponse
 class ReviewRouter {
 
     @Bean
-    fun reviewsRoute(): RouterFunction<ServerResponse> {
+    fun reviewsRoute(reviewHandler: ReviewHandler): RouterFunction<ServerResponse> {
         return route()
             .GET("/v1/helloworld") { ServerResponse.ok().bodyValue("helloworld") }
+            .POST("/v1/reviews") { request -> reviewHandler.addReview(request) }
             .build()
     }
 }
