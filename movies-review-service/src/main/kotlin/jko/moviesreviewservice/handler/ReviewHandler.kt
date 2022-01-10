@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Component
 class ReviewHandler(
@@ -20,10 +22,24 @@ class ReviewHandler(
     }
 
     fun getReviews(request: ServerRequest): Mono<ServerResponse> {
-        val reviewsFlux = reviewReactiveRepository.findAll()
+        val movieInfoId: Optional<String> = request.queryParam("movieInfoId")
 
-        return ServerResponse.ok().body(reviewsFlux, Review::class.java)
+        return if (movieInfoId.isPresent) {
+            val reviewsFlux = reviewReactiveRepository.findReviewsByMovieInfoId(
+                movieInfoId.map { it.toLong() }.get()
+            )
+
+            buildReviewsResponse(reviewsFlux)
+        } else {
+            val reviewsFlux = reviewReactiveRepository.findAll()
+
+            buildReviewsResponse(reviewsFlux)
+        }
+
     }
+
+    private fun buildReviewsResponse(reviewsFlux: Flux<Review>) =
+        ServerResponse.ok().body(reviewsFlux, Review::class.java)
 
     fun updateReview(request: ServerRequest): Mono<ServerResponse> {
         val reviewId = request.pathVariable("id")
