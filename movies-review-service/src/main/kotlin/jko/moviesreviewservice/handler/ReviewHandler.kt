@@ -24,4 +24,22 @@ class ReviewHandler(
 
         return ServerResponse.ok().body(reviewsFlux, Review::class.java)
     }
+
+    fun updateReview(request: ServerRequest): Mono<ServerResponse> {
+        val reviewId = request.pathVariable("id")
+        val existingReview = reviewReactiveRepository.findById(reviewId)
+
+        return existingReview
+            .flatMap { review ->
+                request.bodyToMono(Review::class.java)
+                    .map { reqReview ->
+                        review.comment = reqReview.comment
+                        review.rating = reqReview.rating
+                        review
+                    }
+                    .flatMap { reviewReactiveRepository.save(it) }
+                    .flatMap { savedReview -> ServerResponse.ok().bodyValue(savedReview) }
+            }
+
+    }
 }

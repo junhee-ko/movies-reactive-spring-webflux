@@ -11,7 +11,7 @@ data class Review(
 
     val movieInfoId: Long,
 
-    val comment: String,
+    var comment: String,
 
-    val rating: Double,
+    var rating: Double,
 )

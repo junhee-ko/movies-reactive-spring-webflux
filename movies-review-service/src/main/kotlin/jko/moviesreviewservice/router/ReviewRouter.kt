@@ -18,6 +18,7 @@ class ReviewRouter {
                 builder
                     .POST("") { request -> reviewHandler.addReview(request) }
                     .GET("") { request -> reviewHandler.getReviews(request) }
+                    .PUT("/{id}"){request -> reviewHandler.updateReview(request)}
             }
             .GET("/v1/helloworld") { ServerResponse.ok().bodyValue("helloworld") }
             .build()
