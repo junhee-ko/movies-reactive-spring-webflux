@@ -42,4 +42,13 @@ class ReviewHandler(
             }
 
     }
+
+    fun deleteReview(request: ServerRequest): Mono<ServerResponse> {
+        val reviewId = request.pathVariable("id")
+        val existingReview = reviewReactiveRepository.findById(reviewId)
+
+        return existingReview
+            .flatMap { review -> reviewReactiveRepository.deleteById(reviewId) }
+            .then(ServerResponse.noContent().build())
+    }
 }
