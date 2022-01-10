@@ -18,4 +18,10 @@ class ReviewHandler(
             .flatMap { review -> reviewReactiveRepository.save(review) }
             .flatMap { savedReview -> ServerResponse.status(HttpStatus.CREATED).bodyValue(savedReview) }
     }
+
+    fun getReviews(request: ServerRequest): Mono<ServerResponse> {
+        val reviewsFlux = reviewReactiveRepository.findAll()
+
+        return ServerResponse.ok().body(reviewsFlux, Review::class.java)
+    }
 }
