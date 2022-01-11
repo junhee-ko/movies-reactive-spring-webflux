@@ -80,6 +80,7 @@ class ReviewHandler(
                     .flatMap { reviewReactiveRepository.save(it) }
                     .flatMap { savedReview -> ServerResponse.ok().bodyValue(savedReview) }
             }
+//            .switchIfEmpty(ServerResponse.notFound().build())
 
     }
 
