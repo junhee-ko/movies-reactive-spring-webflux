@@ -1,7 +1,9 @@
 package jko.moviesreviewservice.handler
 
 import jko.moviesreviewservice.domain.Review
+import jko.moviesreviewservice.exception.ReviewDataException
 import jko.moviesreviewservice.repository.ReviewReactiveRepository
+import org.jboss.logging.Logger
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -9,16 +11,36 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
+import javax.validation.ConstraintViolation
+import javax.validation.Validator
 
 @Component
 class ReviewHandler(
-    private val reviewReactiveRepository: ReviewReactiveRepository
+    private val reviewReactiveRepository: ReviewReactiveRepository,
+    private val validator: Validator
 ) {
+
+    private val logger = Logger.getLogger(this::class.java)
 
     fun addReview(request: ServerRequest): Mono<ServerResponse> {
         return request.bodyToMono(Review::class.java)
+            .doOnNext(this::validate)
             .flatMap { review -> reviewReactiveRepository.save(review) }
             .flatMap { savedReview -> ServerResponse.status(HttpStatus.CREATED).bodyValue(savedReview) }
+    }
+
+    private fun validate(review: Review) {
+        val constraintViolations: MutableSet<ConstraintViolation<Review>> = validator.validate(review)
+        logger.info("constraintViolations: $constraintViolations")
+
+        if (constraintViolations.size > 0) {
+            val errorMessage = constraintViolations
+                .map { it.message }
+                .sorted()
+                .joinToString()
+
+            throw ReviewDataException(errorMessage)
+        }
     }
 
     fun getReviews(request: ServerRequest): Mono<ServerResponse> {
