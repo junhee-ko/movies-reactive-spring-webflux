@@ -1,0 +1,5 @@
+restClient:
+  moviesInfoUrl: http://localhost:8080/v1/movieinfos
+
+server:
+  port: 8082
