@@ -1,3 +1,3 @@
 rootProject.name = 'movies-reactive-spring-webflux'
-include 'movies-service'
-
+include 'movies-info-service'
+include 'movies-review-service'
