@@ -1,6 +1,7 @@
 package jko.moviesreviewservice.exceptionhandler
 
 import jko.moviesreviewservice.exception.ReviewDataException
+import jko.moviesreviewservice.exception.ReviewNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler
 import org.springframework.core.io.buffer.DataBuffer
@@ -23,6 +24,11 @@ class GlobalErrorHandler : ErrorWebExceptionHandler {
 
         if (ex is ReviewDataException) {
             exchange.response.statusCode = HttpStatus.BAD_REQUEST
+
+            return exchange.response.writeWith(Mono.just(errorMessage))
+        }
+        if (ex is ReviewNotFoundException) {
+            exchange.response.statusCode = HttpStatus.NOT_FOUND
 
             return exchange.response.writeWith(Mono.just(errorMessage))
         }

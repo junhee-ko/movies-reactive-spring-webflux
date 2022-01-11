@@ -2,6 +2,7 @@ package jko.moviesreviewservice.handler
 
 import jko.moviesreviewservice.domain.Review
 import jko.moviesreviewservice.exception.ReviewDataException
+import jko.moviesreviewservice.exception.ReviewNotFoundException
 import jko.moviesreviewservice.repository.ReviewReactiveRepository
 import org.jboss.logging.Logger
 import org.springframework.http.HttpStatus
@@ -66,6 +67,7 @@ class ReviewHandler(
     fun updateReview(request: ServerRequest): Mono<ServerResponse> {
         val reviewId = request.pathVariable("id")
         val existingReview = reviewReactiveRepository.findById(reviewId)
+            .switchIfEmpty(Mono.error(ReviewNotFoundException("Review not found for the given Review id $reviewId")))
 
         return existingReview
             .flatMap { review ->
