@@ -1,6 +1,7 @@
 package jko.moviesreviewservice.routes
 
 import jko.moviesreviewservice.domain.Review
+import jko.moviesreviewservice.exceptionhandler.GlobalErrorHandler
 import jko.moviesreviewservice.handler.ReviewHandler
 import jko.moviesreviewservice.repository.ReviewReactiveRepository
 import jko.moviesreviewservice.router.ReviewRouter
@@ -17,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
 
 @WebFluxTest
-@ContextConfiguration(classes = [ReviewRouter::class, ReviewHandler::class])
+@ContextConfiguration(classes = [ReviewRouter::class, ReviewHandler::class, GlobalErrorHandler::class])
 @AutoConfigureWebTestClient
 class ReviewsUnitTest {
 
@@ -54,6 +55,31 @@ class ReviewsUnitTest {
 
         // then
     }
+
+    @Test
+    fun addReviewValidation() {
+        // given
+        val review = Review(null, null, "good", -9.0)
+
+        `when`(reviewReactiveRepository.save(isA()))
+            .thenReturn(
+                Mono.just(Review("abc", 1L, "good", 9.0))
+            )
+
+        // when
+        webTestClient
+            .post()
+            .uri(REVIEWS_URL)
+            .bodyValue(review)
+            .exchange()
+            .expectStatus()
+            .isBadRequest
+            .expectBody(String::class.java)
+            .isEqualTo("rating.movieInfoId: must not be null, rating.negative: please pass a non-negative value")
+
+        // then
+    }
+
 
     companion object {
         const val REVIEWS_URL = "/v1/reviews"
