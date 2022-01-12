@@ -2,6 +2,7 @@ package jko.moviesservice.client
 
 import jko.moviesservice.domain.MovieInfo
 import jko.moviesservice.exception.MovieInfoClientException
+import jko.moviesservice.exception.MovieInfoServerException
 import org.jboss.logging.Logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -45,6 +46,16 @@ class MoviesInfoRestClient(
                             )
                         }
                 }
+            }
+            // server 가 만약 완전히 down 되면 이 에러를 받지 못함
+            .onStatus(HttpStatus::is5xxServerError) { clientResponse: ClientResponse ->
+                logger.info("Status code: ${clientResponse.statusCode().value()}")
+
+                Mono.error(
+                    MovieInfoServerException(
+                        "Server Exception in MoviesInfoService", clientResponse.statusCode().value()
+                    )
+                )
             }
             .bodyToMono(MovieInfo::class.java)
             .log()
