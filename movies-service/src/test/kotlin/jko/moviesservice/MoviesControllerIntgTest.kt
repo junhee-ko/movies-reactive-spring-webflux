@@ -65,6 +65,76 @@ class MoviesControllerIntgTest(
             }
 
         // then
+    }
 
+    @Test
+    internal fun retrieveMovieById_movieInfos_404() {
+        // given
+        val movieId = "abc"
+        stubFor(
+            get(urlEqualTo("/v1/movieinfos/$movieId"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(404)
+                )
+        )
+        stubFor(
+            get(urlPathEqualTo("/v1/reviews"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("reviews.json")
+                )
+        )
+
+        // when
+        webTestClient
+            .get()
+            .uri("/v1/movies/{id}", movieId)
+            .exchange()
+            .expectStatus()
+            .is4xxClientError
+            .expectBody(String::class.java)
+            .isEqualTo("there is no movieInfo available in id: abc")
+
+        // then
+
+    }
+
+    @Test
+    internal fun retrieveMovieById_reviews_404() {
+        // given
+        val movieId = "abc"
+        stubFor(
+            get(urlEqualTo("/v1/movieinfos/$movieId"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("movieinfo.json")
+                )
+        )
+        stubFor(
+            get(urlPathEqualTo("/v1/reviews"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(404)
+                )
+        )
+
+        // when
+        webTestClient
+            .get()
+            .uri("/v1/movies/{id}", movieId)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(Movie::class.java)
+            .consumeWith { it: EntityExchangeResult<Movie> ->
+                val movie = it.responseBody
+                assertNotNull(movie)
+                assertEquals(0, movie!!.reviews.size)
+                assertEquals("Batman Begins", movie.movieInfo.name)
+            }
+
+        // then
     }
 }
