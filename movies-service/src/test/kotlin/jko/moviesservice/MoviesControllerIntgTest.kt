@@ -137,4 +137,38 @@ class MoviesControllerIntgTest(
 
         // then
     }
+
+    @Test
+    internal fun retrieveMovieById_5xx() {
+        // given
+        val movieId = "abc"
+        stubFor(
+            get(urlEqualTo("/v1/movieinfos/$movieId"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(500)
+                        .withBody("MovieInfo service unavailable")
+                )
+        )
+//        stubFor(
+//            get(urlPathEqualTo("/v1/reviews"))
+//                .willReturn(
+//                    aResponse()
+//                        .withHeader("Content-Type", "application/json")
+//                        .withBodyFile("reviews.json")
+//                )
+//        )
+
+        // when
+        webTestClient
+            .get()
+            .uri("/v1/movies/{id}", movieId)
+            .exchange()
+            .expectStatus()
+            .is5xxServerError
+            .expectBody(String::class.java)
+            .isEqualTo("Server Exception in MoviesInfoService")
+
+        // then
+    }
 }
