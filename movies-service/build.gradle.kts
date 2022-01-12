@@ -25,6 +25,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+
+    // wiremock
+    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner:3.0.3")
 }
 
 tasks.withType<KotlinCompile> {
