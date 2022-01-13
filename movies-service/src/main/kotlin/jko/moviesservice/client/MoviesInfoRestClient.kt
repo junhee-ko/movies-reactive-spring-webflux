@@ -58,6 +58,7 @@ class MoviesInfoRestClient(
                 )
             }
             .bodyToMono(MovieInfo::class.java)
+            .retry(3)
             .log()
     }
 }

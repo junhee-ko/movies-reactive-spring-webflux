@@ -30,7 +30,7 @@ class MoviesControllerIntgTest(
 
 
     @Test
-    internal fun retrieveMovieById() {
+    fun retrieveMovieById() {
         // given
         val movieId = "abc"
         stubFor(
@@ -68,7 +68,7 @@ class MoviesControllerIntgTest(
     }
 
     @Test
-    internal fun retrieveMovieById_movieInfos_404() {
+    fun retrieveMovieById_movieInfos_404() {
         // given
         val movieId = "abc"
         stubFor(
@@ -102,7 +102,7 @@ class MoviesControllerIntgTest(
     }
 
     @Test
-    internal fun retrieveMovieById_reviews_404() {
+    fun retrieveMovieById_reviews_404() {
         // given
         val movieId = "abc"
         stubFor(
@@ -139,7 +139,7 @@ class MoviesControllerIntgTest(
     }
 
     @Test
-    internal fun retrieveMovieById_5xx() {
+    fun retrieveMovieById_5xx() {
         // given
         val movieId = "abc"
         stubFor(
@@ -169,6 +169,8 @@ class MoviesControllerIntgTest(
             .expectBody(String::class.java)
             .isEqualTo("Server Exception in MoviesInfoService")
 
+
         // then
+        verify(4, getRequestedFor(urlEqualTo("/v1/movieinfos/abc")))
     }
 }
