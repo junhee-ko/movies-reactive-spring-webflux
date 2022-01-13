@@ -173,4 +173,41 @@ class MoviesControllerIntgTest(
         // then
         verify(4, getRequestedFor(urlEqualTo("/v1/movieinfos/abc")))
     }
+
+    @Test
+    fun retrieveMovieById_Reviews_5xx() {
+        // given
+        val movieId = "abc"
+        stubFor(
+            get(urlEqualTo("/v1/movieinfos/$movieId"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("movieinfo.json")
+                )
+        )
+        stubFor(
+            get(urlPathEqualTo("/v1/reviews"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(500)
+                        .withBody("Server Exception in ReviewsService")
+                )
+
+        )
+
+        // when
+        webTestClient
+            .get()
+            .uri("/v1/movies/{id}", movieId)
+            .exchange()
+            .expectStatus()
+            .is5xxServerError
+            .expectBody(String::class.java)
+            .isEqualTo("Server Exception in ReviewsService")
+
+
+        // then
+        verify(4, getRequestedFor(urlPathMatching("/v1/reviews*")))
+    }
 }

@@ -3,6 +3,7 @@ package jko.moviesservice.client
 import jko.moviesservice.domain.Review
 import jko.moviesservice.exception.ReviewsClientException
 import jko.moviesservice.exception.ReviewsServerException
+import jko.moviesservice.util.RetryUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -57,6 +58,7 @@ class ReviewsRestClient(
                 )
             }
             .bodyToFlux(Review::class.java)
+            .retryWhen(RetryUtil.retrySpec())
             .log()
     }
 }
