@@ -98,7 +98,7 @@ class MoviesControllerIntgTest(
             .isEqualTo("there is no movieInfo available in id: abc")
 
         // then
-
+        verify(1, getRequestedFor(urlEqualTo("/v1/movieinfos/abc")))
     }
 
     @Test

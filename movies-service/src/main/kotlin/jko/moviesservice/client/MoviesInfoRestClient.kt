@@ -9,7 +9,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.Exceptions
 import reactor.core.publisher.Mono
+import reactor.util.retry.Retry
+import reactor.util.retry.RetryBackoffSpec
+import java.time.Duration
 
 @Component
 class MoviesInfoRestClient(
@@ -19,6 +23,12 @@ class MoviesInfoRestClient(
     private val logger = Logger.getLogger(this::class.java)
 
     fun retrieveMovieInfo(movieId: String): Mono<MovieInfo> {
+        val retrySpec = Retry.fixedDelay(3, Duration.ofSeconds(1))
+            .filter { ex -> ex is MovieInfoServerException }
+            .onRetryExhaustedThrow { retryBackOffSpec: RetryBackoffSpec, retrySignal: Retry.RetrySignal ->
+                Exceptions.propagate(retrySignal.failure())
+            }
+
         val url = "$movieInfoUrl/{id}"
 
         return webClient
@@ -58,7 +68,8 @@ class MoviesInfoRestClient(
                 )
             }
             .bodyToMono(MovieInfo::class.java)
-            .retry(3)
+//            .retry(3)
+            .retryWhen(retrySpec)
             .log()
     }
 }
