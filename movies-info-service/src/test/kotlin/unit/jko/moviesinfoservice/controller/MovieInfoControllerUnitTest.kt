@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
@@ -96,7 +97,7 @@ class MovieInfoControllerUnitTest {
             .exchange()
             .expectStatus()
             .isCreated
-            .expectBody(MovieInfo::class.java)
+            .expectBody<MovieInfo>()
             .consumeWith {
                 val savedMovieInfo = it.responseBody
                 Assertions.assertNotNull(savedMovieInfo)
@@ -139,7 +140,7 @@ class MovieInfoControllerUnitTest {
             .exchange()
             .expectStatus()
             .is2xxSuccessful
-            .expectBody(MovieInfo::class.java)
+            .expectBody<MovieInfo>()
             .consumeWith {
                 val updatedMovieInfo = it.responseBody
                 Assertions.assertNotNull(updatedMovieInfo)
@@ -169,7 +170,7 @@ class MovieInfoControllerUnitTest {
             .exchange()
             .expectStatus()
             .isBadRequest
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .consumeWith {
                 val error = it.responseBody
                 val expectedErrorMessage = "movieInfo.name must be present,movieInfo.year must be positive value"

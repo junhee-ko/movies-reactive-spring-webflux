@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import reactor.test.StepVerifier
 
 @WebFluxTest(controllers = [FluxAndMonoController::class])
@@ -61,7 +62,7 @@ internal class FluxAndMonoControllerTest(
             .exchange()
             .expectStatus()
             .is2xxSuccessful
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .consumeWith {
                 assertEquals("1", it.responseBody)
             }
