@@ -9,12 +9,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.util.UriComponentsBuilder
+import reactor.core.publisher.Flux
+import reactor.test.StepVerifier
 import java.time.LocalDate
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,7 +82,7 @@ class MoviesInfoControllerIntgTest(
             .exchange()
             .expectStatus()
             .isCreated
-            .expectBody(MovieInfo::class.java)
+            .expectBody<MovieInfo>()
             .consumeWith {
                 val savedMovieInfo = it.responseBody
                 assertNotNull(savedMovieInfo)
@@ -105,6 +107,48 @@ class MoviesInfoControllerIntgTest(
             .hasSize(3)
 
         // then
+    }
+
+    @Test
+    fun getAllMovieInfos_stream() {
+        // given
+        val movieInfo = MovieInfo(
+            movieInfoId = null,
+            name = "Batman Begins 2",
+            year = 2005,
+            cast = listOf("Christian Bale", "Michael Cane"),
+            releaseDate = LocalDate.of(2000, 11, 14)
+        )
+
+        webTestClient
+            .post()
+            .uri("/v1/movieinfos")
+            .bodyValue(movieInfo)
+            .exchange()
+            .expectStatus()
+            .isCreated
+            .expectBody<MovieInfo>()
+            .consumeWith {
+                val savedMovieInfo = it.responseBody
+                assertNotNull(savedMovieInfo)
+                assertNotNull(savedMovieInfo?.movieInfoId)
+            }
+
+        // when
+        val moviesStreamFlux: Flux<MovieInfo> = webTestClient
+            .get()
+            .uri("/v1/movieinfos/stream")
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .returnResult(MovieInfo::class.java)
+            .responseBody
+
+        // then
+        StepVerifier.create(moviesStreamFlux)
+            .assertNext { assertNotNull(it.movieInfoId) }
+            .thenCancel() // streaming endpoint 라서, long live connection 이다. 그래서 thenCancel 로 끊음.
+            .verify()
     }
 
     @Test
@@ -170,7 +214,7 @@ class MoviesInfoControllerIntgTest(
             .exchange()
             .expectStatus()
             .is2xxSuccessful
-            .expectBody(MovieInfo::class.java)
+            .expectBody<MovieInfo>()
             .consumeWith {
                 val updatedMovieInfo = it.responseBody
                 assertNotNull(updatedMovieInfo)

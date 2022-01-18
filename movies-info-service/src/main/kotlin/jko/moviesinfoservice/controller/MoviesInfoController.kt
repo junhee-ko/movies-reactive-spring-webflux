@@ -3,10 +3,12 @@ package jko.moviesinfoservice.controller
 import jko.moviesinfoservice.domain.MovieInfo
 import jko.moviesinfoservice.service.MovieInfoService
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Sinks
 import javax.validation.Valid
 
 @RestController
@@ -15,6 +17,8 @@ class MoviesInfoController(
     private val movieInfoService: MovieInfoService
 ) {
 
+//    val moviesInfoSink: Sinks.Many<MovieInfo> = Sinks.many().replay().all()
+    val moviesInfoSink: Sinks.Many<MovieInfo> = Sinks.many().replay().latest()
 
     @GetMapping("/movieinfos")
     fun getAllMovieInfos(@RequestParam(value = "year", required = false) year: Int?): Flux<MovieInfo> {
@@ -32,10 +36,17 @@ class MoviesInfoController(
             .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))
     }
 
+
+    @GetMapping("/movieinfos/stream", produces = [MediaType.APPLICATION_NDJSON_VALUE])
+    fun streamMovieInfos():Flux<MovieInfo> {
+        return moviesInfoSink.asFlux().log()
+    }
+
     @PostMapping("/movieinfos")
     @ResponseStatus(HttpStatus.CREATED)
     fun addMovieInfo(@RequestBody @Valid movieInfo: MovieInfo): Mono<MovieInfo> {
-        return movieInfoService.addMovieInfo(movieInfo).log()
+        return movieInfoService.addMovieInfo(movieInfo)
+            .doOnNext { savedMovieInfo -> moviesInfoSink.tryEmitNext(savedMovieInfo) }
     }
 
     @PutMapping("/movieinfos/{id}")
