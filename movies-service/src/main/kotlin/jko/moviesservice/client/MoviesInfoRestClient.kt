@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Component
@@ -59,6 +60,42 @@ class MoviesInfoRestClient(
                 )
             }
             .bodyToMono(MovieInfo::class.java)
+//            .retry(3)
+            .retryWhen(RetryUtil.retrySpec())
+            .log()
+    }
+
+    fun retrieveMovieInfoStream(): Flux<MovieInfo> {
+        val url = "$movieInfoUrl/stream"
+
+        return webClient
+            .get()
+            .uri(url)
+            .retrieve()
+            .onStatus(HttpStatus::is4xxClientError) { clientResponse: ClientResponse ->
+                logger.info("Status code: ${clientResponse.statusCode().value()}")
+
+                clientResponse.bodyToMono(String::class.java)
+                    .flatMap { response ->
+                        Mono.error(
+                            MovieInfoClientException(
+                                response,
+                                clientResponse.statusCode().value()
+                            )
+                        )
+                    }
+            }
+            // server 가 만약 완전히 down 되면 이 에러를 받지 못함
+            .onStatus(HttpStatus::is5xxServerError) { clientResponse: ClientResponse ->
+                logger.info("Status code: ${clientResponse.statusCode().value()}")
+
+                Mono.error(
+                    MovieInfoServerException(
+                        "Server Exception in MoviesInfoService", clientResponse.statusCode().value()
+                    )
+                )
+            }
+            .bodyToFlux(MovieInfo::class.java)
 //            .retry(3)
             .retryWhen(RetryUtil.retrySpec())
             .log()
