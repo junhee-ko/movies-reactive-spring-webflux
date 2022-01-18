@@ -6,11 +6,13 @@ import jko.moviesreviewservice.exception.ReviewNotFoundException
 import jko.moviesreviewservice.repository.ReviewReactiveRepository
 import org.jboss.logging.Logger
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Sinks
 import java.util.*
 import javax.validation.ConstraintViolation
 import javax.validation.Validator
@@ -22,11 +24,13 @@ class ReviewHandler(
 ) {
 
     private val logger = Logger.getLogger(this::class.java)
+    val reviewsSink: Sinks.Many<Review> = Sinks.many().replay().latest()
 
     fun addReview(request: ServerRequest): Mono<ServerResponse> {
         return request.bodyToMono(Review::class.java)
             .doOnNext(this::validate)
             .flatMap { review -> reviewReactiveRepository.save(review) }
+            .doOnNext { savedReview -> reviewsSink.tryEmitNext(savedReview) }
             .flatMap { savedReview -> ServerResponse.status(HttpStatus.CREATED).bodyValue(savedReview) }
     }
 
@@ -91,5 +95,12 @@ class ReviewHandler(
         return existingReview
             .flatMap { review -> reviewReactiveRepository.deleteById(reviewId) }
             .then(ServerResponse.noContent().build())
+    }
+
+    fun getReviewsStream(request: ServerRequest): Mono<ServerResponse> {
+        return ServerResponse.ok()
+            .contentType(MediaType.APPLICATION_NDJSON)
+            .body(reviewsSink.asFlux(), Review::class.java)
+            .log()
     }
 }

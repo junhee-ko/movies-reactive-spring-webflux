@@ -20,6 +20,7 @@ class ReviewRouter {
                     .GET("") { request -> reviewHandler.getReviews(request) }
                     .PUT("/{id}") { request -> reviewHandler.updateReview(request) }
                     .DELETE("/{id}") { request -> reviewHandler.deleteReview(request) }
+                    .GET("/stream") { request -> reviewHandler.getReviewsStream(request) }
             }
             .GET("/v1/helloworld") { ServerResponse.ok().bodyValue("helloworld") }
             .build()
