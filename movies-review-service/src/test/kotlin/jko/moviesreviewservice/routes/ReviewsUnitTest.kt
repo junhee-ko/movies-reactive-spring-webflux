@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import reactor.core.publisher.Mono
 
 @WebFluxTest
@@ -46,7 +47,7 @@ class ReviewsUnitTest {
             .exchange()
             .expectStatus()
             .isCreated
-            .expectBody(Review::class.java)
+            .expectBody<Review>()
             .consumeWith {
                 val savedReview = it.responseBody
                 Assertions.assertNotNull(savedReview)
@@ -74,7 +75,7 @@ class ReviewsUnitTest {
             .exchange()
             .expectStatus()
             .isBadRequest
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .isEqualTo("rating.movieInfoId: must not be null, rating.negative: please pass a non-negative value")
 
         // then

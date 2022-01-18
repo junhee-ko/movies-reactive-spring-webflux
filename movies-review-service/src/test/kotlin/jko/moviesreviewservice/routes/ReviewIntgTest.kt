@@ -3,7 +3,7 @@ package jko.moviesreviewservice.routes
 import jko.moviesreviewservice.domain.Review
 import jko.moviesreviewservice.repository.ReviewReactiveRepository
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -52,7 +53,7 @@ class ReviewIntgTest(
             .exchange()
             .expectStatus()
             .isCreated
-            .expectBody(Review::class.java)
+            .expectBody<Review>()
             .consumeWith {
                 val savedReview = it.responseBody
                 assertNotNull(savedReview)

@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.EntityExchangeResult
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -56,7 +57,7 @@ class MoviesControllerIntgTest(
             .uri("/v1/movies/{id}", movieId)
             .exchange()
             .expectStatus().isOk
-            .expectBody(Movie::class.java)
+            .expectBody<Movie>()
             .consumeWith { it: EntityExchangeResult<Movie> ->
                 val movie = it.responseBody
                 assertNotNull(movie)
@@ -94,7 +95,7 @@ class MoviesControllerIntgTest(
             .exchange()
             .expectStatus()
             .is4xxClientError
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .isEqualTo("there is no movieInfo available in id: abc")
 
         // then
@@ -127,7 +128,7 @@ class MoviesControllerIntgTest(
             .uri("/v1/movies/{id}", movieId)
             .exchange()
             .expectStatus().isOk
-            .expectBody(Movie::class.java)
+            .expectBody<Movie>()
             .consumeWith { it: EntityExchangeResult<Movie> ->
                 val movie = it.responseBody
                 assertNotNull(movie)
@@ -166,7 +167,7 @@ class MoviesControllerIntgTest(
             .exchange()
             .expectStatus()
             .is5xxServerError
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .isEqualTo("Server Exception in MoviesInfoService")
 
 
@@ -203,7 +204,7 @@ class MoviesControllerIntgTest(
             .exchange()
             .expectStatus()
             .is5xxServerError
-            .expectBody(String::class.java)
+            .expectBody<String>()
             .isEqualTo("Server Exception in ReviewsService")
 
 
